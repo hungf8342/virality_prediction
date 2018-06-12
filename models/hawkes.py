@@ -10,6 +10,14 @@ def propagate(i,theta,E,T):
     T=T+len(l)
     return [l,T]
     
+def eToA(E):
+    A = np.zeros((np.max(E), np.max(E)))
+    print(A)
+    for i in range(E.shape[0]):
+        A[E[i,0] - 1, E[i,1] - 1] = 1;
+        A[E[i,1] - 1, E[i,0] - 1] = 1;
+
+    return A
 
 def sample_hawkes (E,Nsamples,theta):
     N=len(np.unique(E[:,1]))
@@ -26,4 +34,16 @@ def sample_hawkes (E,Nsamples,theta):
             if len(l)!=0:
                 node_list=np.append(node_list,l)
     T=np.mean(T)
-    return T 
+    return T
+
+def exact_hawkes(E, max_gen, theta):
+    A = eToA(E)
+    M = np.zeros(A.shape)
+    
+    for i in xrange(1,max_gen):
+        M = M + np.linalg.matrix_power(theta * A, i-1);
+
+
+    N = A.shape[0];
+    T = np.mean(M) * N
+    return T

@@ -21,12 +21,12 @@ inline bool myfunction(pair<NodeID_TYPE,NodeID_TYPE> a,pair<NodeID_TYPE,NodeID_T
 
 double readFile(FILE * &input,int has_edge_att)
 {
-	rt1.start();
+    rt1.start();
 	NodeID_TYPE T;
 	if(has_edge_att == 1)
 		int tt = fscanf(input,"%u%u%u",&N,&M,&T);
 	else
-		int tt = fscanf(input,"%u",&M);
+		int tt = fscanf(input,"%u%u",&N,&M);
 
 	NodeID_TYPE u , v, t;
 	NodeID_TYPE count = 0;
@@ -35,7 +35,7 @@ double readFile(FILE * &input,int has_edge_att)
 	// reading the file
     for(NodeID_TYPE i=0;i<M;i++)
 	{
-		if(has_edge_att == 1)
+        if(has_edge_att == 1)
 			int tt = fscanf(input,"%u%u%u",&u,&v,&t );
 		else
 			int tt = fscanf(input,"%u%u",&u,&v);
@@ -346,7 +346,8 @@ int main(int argc, char **argv)
         return 1;
 	}
 	FILE *in_file = fopen(filename, "r");		// graph input file
-	int idx=0;
+    
+    int idx=0;
 	char label_name1[200];
 
 	if(edge_file == 1)
@@ -400,7 +401,6 @@ int main(int argc, char **argv)
 	}
 	label_name2[idx++]='\0';
 //*/
-    cout << "I about to read yo files\n";
 	double read_time;
 	read_time = readFile(in_file,has_edge_att);
 	cout << "read time: "<< read_time << "sec" <<endl;

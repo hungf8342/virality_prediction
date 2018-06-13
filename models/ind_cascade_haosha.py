@@ -1,6 +1,6 @@
 import numpy as np
 ## independent cascade model
-# E is N-by-3 matrix u, v, w
+# E is N-by-3 matrix u, v, w; it is symmetric, i.e. if there is u, v, w, there must be v, u, w
 # A0 is an array of initial active nodes
 #
 # return:

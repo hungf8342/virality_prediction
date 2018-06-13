@@ -7,6 +7,7 @@ def getDegree(E):
     deg = np.zeros(np.max(E))
     for edge in E:
         deg[edge[0] - 1] += 1
+    return deg
 
 data = np.loadtxt("graphs/soc-anybeat.txt", dtype='int')
 
@@ -17,6 +18,8 @@ equal_count = 0
 for i in range(1000):
     temp_dat = sg.shuffle(data, i)
     temp_deg = getDegree(temp_dat)
+    print(temp_deg[:10])
+    print(orig_deg[:10])
     if not np.array_equal(temp_deg, orig_deg):
         print("NOT Equal!")
     else:

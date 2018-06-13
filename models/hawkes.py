@@ -11,7 +11,6 @@ def propagate(i,theta,E,T):
     
 def eToA(E):
     A = np.zeros((np.max(E), np.max(E)))
-    print(A)
     for i in range(E.shape[0]):
         A[E[i,0] - 1, E[i,1] - 1] = 1;
         A[E[i,1] - 1, E[i,0] - 1] = 1;

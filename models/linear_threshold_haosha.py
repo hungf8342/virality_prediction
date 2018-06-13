@@ -5,6 +5,10 @@ import numpy as np
 # A0 -- a list of initial active nodes (numpy array)
 # nIter -- number of iteration
 #
+# return:
+# len(A) -- number of active nodes after nIter
+# A      -- active nodes after nIter
+# I      -- inactive nodes after nIter
 def ltm(E, A0, nIter): 
     A = A0 # active nodes
     I = np.setdiff1d(E[:,0], A) # inactive nodes

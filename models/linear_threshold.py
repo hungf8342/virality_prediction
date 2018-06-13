@@ -24,10 +24,14 @@ def update_graph(edge_mat,node_mat,new_active,active):
     while len(new_active)>0:
         for n in new_active:
             print("new active is "+str(new_active))
-            print("n is"+str(n))
+            print("n is "+str(n))
             node_mat,now_active=neighbor_update(edge_mat,node_mat,n,active,new_active)
-            if len(new_active)!=0:
-                np.append(new_active,now_active)
-        #np.append(active,n)
-        new_active=new_active[1:]
-        return node_mat,new_active,active
+            print("now active is "+str(now_active))
+            if len(now_active)!=0:
+                print(len(now_active))
+                new_active=np.append(new_active,now_active)
+            new_active=new_active[1:]
+            print(new_active)
+            active=np.append(active,n)
+    return node_mat,new_active,active
+        

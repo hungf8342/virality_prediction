@@ -1,4 +1,5 @@
 import numpy as np
+import networkx as nx
 
 def propagate(i,theta,E,T):
     l=E[E[:,0]==i,1]
@@ -34,8 +35,8 @@ def sample_hawkes (E,Nsamples,theta):
     T=np.mean(T)
     return T
 
-def exact_hawkes(E, max_gen, theta):
-    A = eToA(E)
+def exact_hawkes(G, max_gen, theta):
+    A = nx.to_numpy_array(G)
     M = np.zeros(A.shape)
     
     for i in xrange(1,max_gen):

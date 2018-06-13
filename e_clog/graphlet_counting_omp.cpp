@@ -26,14 +26,14 @@ double readFile(FILE * &input,int has_edge_att)
 	if(has_edge_att == 1)
 		int tt = fscanf(input,"%u%u%u",&N,&M,&T);
 	else
-		int tt = fscanf(input,"%u%u",&N,&M);
+		int tt = fscanf(input,"%u",&M);
 
 	NodeID_TYPE u , v, t;
 	NodeID_TYPE count = 0;
 	unordered_map<NodeID_TYPE,unordered_map<NodeID_TYPE,int> > map;
 //	vector<NodeID_TYPE> local_nodes;
 	// reading the file
-    	for(NodeID_TYPE i=0;i<M;i++)
+    for(NodeID_TYPE i=0;i<M;i++)
 	{
 		if(has_edge_att == 1)
 			int tt = fscanf(input,"%u%u%u",&u,&v,&t );
@@ -287,6 +287,11 @@ int main(int argc, char **argv)
 		cout << "Enter filename..."<<endl;
 		return 1;
 	}
+
+    if (argc == 2) {
+        cout << "Please enter both an option and a filename..." << '\n';
+        return 1;
+    }
 	int i = 1, has_edge_att = 0;
 	char *filename,*edge_filename; //,*filename1,*resfilename,*queryfile; // *resfilename="../index/"
 	while (i < argc) {
@@ -337,8 +342,8 @@ int main(int argc, char **argv)
 			is_unique = 1;
 			continue;
 		}
-
-
+        cout << "Invalid command...\n";
+        return 1;
 	}
 	FILE *in_file = fopen(filename, "r");		// graph input file
 	int idx=0;
@@ -395,6 +400,7 @@ int main(int argc, char **argv)
 	}
 	label_name2[idx++]='\0';
 //*/
+    cout << "I about to read yo files\n";
 	double read_time;
 	read_time = readFile(in_file,has_edge_att);
 	cout << "read time: "<< read_time << "sec" <<endl;

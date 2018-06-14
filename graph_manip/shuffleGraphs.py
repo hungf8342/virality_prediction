@@ -2,7 +2,7 @@ import random
 import networkx as nx
 
 def shuffle(G, num):
-    A = G.copy()
+    A = G
     i = 0
     while i < num:
         edgeList = [e for e in A.edges]

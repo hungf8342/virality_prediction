@@ -37,12 +37,12 @@ def sample_hawkes (E,Nsamples,theta):
 
 def exact_hawkes(G, max_gen, theta):
     A = nx.to_numpy_array(G)
-    M = np.zeros(A.shape)
-    
-    for i in xrange(1,max_gen):
-        M = M + np.linalg.matrix_power(theta * A, i-1);
-
-
+    e, V = np.linalg.eig(A)
+    if min(e) * theta <= -1 or max(e) * theta >= 1:
+        return -1
+    D = np.diag(e) * theta
+    D = 1.0 / (1.0-D) - 1.0
+    M = np.dot(np.dot(V, D), np.linalg.inv(V))
     N = A.shape[0];
-    T = np.mean(M) * N
-    return T
+    T = np.mean(M) * N + 1
+    return T.real

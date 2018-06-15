@@ -4,36 +4,42 @@ import graph_manip.shuffleGraphs as sg
 from models.hawkes import exact_hawkes
 import matplotlib.pyplot as plt
 import pickle
+import sklearn.linear_model as lm
 
-graph = nx.read_edgelist("graphs/karate.txt")
-degree = sorted([d for n, d in graph.degree()], reverse=True)
+graph = nx.read_edgelist("graphs/karate_1.txt")
 
-new_graph = sg.shuffle(graph, 100)
-new_degree = sorted([d for n, d in new_graph.degree()], reverse=True)
-print(nx.degree_assortativity_coefficient(graph))
-print(nx.degree_assortativity_coefficient(new_graph))
-print(nx.to_numpy_matrix(graph))
-print(exact_hawkes(graph, 1000, 0.1))
+eig_coeff = 1/max(np.linalg.eig(nx.to_numpy_matrix(graph))[0])
 
 assortativity = []
 hawkes = []
 
-for i in range(400):
-    temp_graph = sg.shuffle(graph, 1000)
-    e_hawkes = exact_hawkes(temp_graph, 10000, 0.14) 
-    if e_hawkes < 1000000:
-        assortativity.append(nx.degree_assortativity_coefficient(temp_graph))
+theta_scaled = .96
+
+for i in range(50000):
+    sg.shuffle(graph, 1)
+    e_hawkes = exact_hawkes(graph, 10000, theta_scaled * eig_coeff)
+    if(e_hawkes > 0):
+        assortativity.append(nx.degree_assortativity_coefficient(graph))
         hawkes.append(e_hawkes)
         print(i)
+    else:
+        print(e_hawkes)
 
 pickle.dump((assortativity, hawkes), open("r_1000_s_1000_h_10000.dat", "wb"))
+
+model = lm.LinearRegression()
+model.fit(np.asmatrix(assortativity).T, np.log10(hawkes))
+print(model.score(np.asmatrix(assortativity).T, np.log10(hawkes)))
+
+xpred = np.asmatrix(np.linspace(-.5, -.2, 1000)).T
+ypred = (model.predict(xpred))
 
 fig = plt.figure()
 ax = plt.gca()
 
-exact_hawkes(temp_graph, 1000, 0.2)
-ax.scatter(assortativity, hawkes, alpha=0.2)
-ax.set_yscale('log')
+ax.scatter(assortativity, np.log10(hawkes), alpha=0.1)
+ax.plot(xpred, ypred, 'r-')
+#ax.set_yscale('log')
 plt.ylabel("Hawkes number")
 plt.xlabel("Assortativity")
 plt.show()

@@ -35,6 +35,22 @@ def sample_hawkes (E,Nsamples,theta):
     T=np.mean(T)
     return T
 
+# start hawkes from node i
+def sample_hawkes_i(i, E,Nsamples,theta):
+    T=np.ones(Nsamples)
+    
+    for k in range(0,Nsamples):
+        node_list=np.asarray([i])
+        while len(node_list)>0:
+            prop=propagate(node_list[0],theta,E,T[k])
+            l=prop[0]
+            T[k]=prop[1]
+            node_list=node_list[1:]
+            if len(l)!=0:
+                node_list=np.append(node_list,l)
+    T=np.mean(T)
+    return T
+
 def exact_hawkes(G, max_gen, theta):
     A = nx.to_numpy_array(G)
     e, V = np.linalg.eig(A)

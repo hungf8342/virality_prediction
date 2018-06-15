@@ -15,7 +15,7 @@ hawkes = []
 
 theta_scaled = .96
 
-for i in range(50000):
+for i in range(10000):
     sg.shuffle(graph, 1)
     e_hawkes = exact_hawkes(graph, 10000, theta_scaled * eig_coeff)
     if(e_hawkes > 0):

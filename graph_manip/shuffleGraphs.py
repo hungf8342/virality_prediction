@@ -10,10 +10,10 @@ def shuffle(G, num):
         firstE = edgeList[indices[0]]
         secondE = edgeList[indices[1]]
         
-        # need to avoid situation like, [(1,2), (1,3), (2,4)] -> [(1,3), (1,4), (2,,2)]
-        if (firstE[1] != secondE[0]) and \
-           (firstE[0] != secondE[1]) and \ 
-           (not A.has_edge(firstE[0], secondE[1])) and \
+        # need to avoid situation like, [(1,2), (1,3), (2,4)] -> [(1,3), (1,4), (2,2)]
+        if (firstE[1] != secondE[0]) and\
+           (firstE[0] != secondE[1]) and\
+           (not A.has_edge(firstE[0], secondE[1])) and\
            (not A.has_edge(secondE[0], firstE[1])):
             A.remove_edge(firstE[0], firstE[1])
             A.remove_edge(secondE[0], secondE[1])

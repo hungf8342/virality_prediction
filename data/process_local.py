@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import networkx as nx
 import os, sys
 sys.path.insert(0, '../')
@@ -22,16 +23,17 @@ def main():
     count = 0
     for filename in os.listdir("graphlets"):
         if filename.endswith("gfc"):
-            nodeCount = loadMap(filename, 62)
             E = np.loadtxt(open(os.path.join("graphs", filename[:-4] + ".dat"), "rb"), dtype="int")
-            for i in range(62):
-                hawkes = hs.exact_hawkes_from(E, i, 0.1426)
-                if hawkes > 0:
-                    xData.append(nodeCount[i])
-                    yData.append(hawkes)
-                    print(count)
-                else:
-                    print("-1")
-                count += 1
+            nodeCount = loadMap(filename, E[0,0])
+            #for i in range(E[0,0]):
+            i = random.randint(0, E[0,0] - 1)
+            hawkes = hs.exact_hawkes_from(E[1:], i, 0.1335 * 0.96)
+            if hawkes > 0:
+                xData.append(nodeCount[i])
+                yData.append(hawkes)
+                print(count)
+            else:
+                print("-1")
+            count += 1
     pickle.dump((xData, yData), open("outDataLocal_dolph.dat", 'wb'))
 main()

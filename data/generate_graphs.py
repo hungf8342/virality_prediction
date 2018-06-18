@@ -7,7 +7,7 @@ import networkx as nx
 def main():
     graph = nx.read_edgelist("orig_graphs/soc-dolphins.txt") 
 
-    for i in range(2000):
+    for i in range(5000):
         sg.shuffle(graph, 1)
         filename = "graphs/dolphin_s_" + str(i) + ".dat"
         output = [["62", "159"]]

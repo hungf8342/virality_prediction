@@ -9,7 +9,7 @@ import sklearn.linear_model as lm
 graph = nx.read_edgelist("graphs/karate_1.txt")
 
 eig_coeff = 1/max(np.linalg.eig(nx.to_numpy_matrix(graph))[0])
-
+print(eig_coeff*.96)
 assortativity = []
 hawkes = []
 

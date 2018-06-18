@@ -11,10 +11,10 @@ def propagate(i,theta,E,T):
     return [l,T]
     
 def eToA(E):
-    A = np.zeros((np.max(E), np.max(E)))
+    A = np.zeros((np.max(E) + 1, np.max(E) + 1))
     for i in range(E.shape[0]):
-        A[E[i,0] - 1, E[i,1] - 1] = 1;
-        A[E[i,1] - 1, E[i,0] - 1] = 1;
+        A[E[i,0], E[i,1]] = 1;
+        A[E[i,1], E[i,0]] = 1;
 
     return A
 
@@ -45,4 +45,33 @@ def exact_hawkes(G, max_gen, theta):
     M = np.dot(np.dot(V, D), np.linalg.inv(V))
     N = A.shape[0];
     T = np.mean(M) * N + 1
+    return T.real
+
+def exact_hawkes_arr(E, theta):
+    A = eToA(E)
+    e, V = np.linalg.eig(A)
+    if min(e) * theta <= -1 or max(e) * theta >= 1:
+        return -1
+    D = np.diag(e) * theta
+    D = 1.0 / (1.0-D) - 1.0
+    M = np.dot(np.dot(V, D), np.linalg.inv(V))
+    N = A.shape[0];
+    init = np.ones(N)
+    T = np.dot(init, np.dot(M, init)) / N + 1
+    return T.real
+
+def exact_hawkes_from(E, node, theta):
+    A = eToA(E)
+    e, V = np.linalg.eig(A)
+    if min(e) * theta <= -1 or max(e) * theta >= 1:
+        return -1
+    D = np.diag(e) * theta
+    D = 1.0 / (1.0-D) - 1.0
+    M = np.dot(np.dot(V, D), np.linalg.inv(V))
+    N = A.shape[0];
+    init = np.zeros(N)
+    init[node] = 1
+    ones = np.ones(N)
+    res = np.dot(M, init)
+    T = np.dot(ones, res) + 1
     return T.real

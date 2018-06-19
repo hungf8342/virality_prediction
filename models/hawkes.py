@@ -76,6 +76,16 @@ def exact_hawkes_arr(E, theta):
     T = np.dot(init, np.dot(M, init)) / N + 1
     return T.real
 
+def getDiag(E, theta):
+    A = eToA(E)
+    e, V = np.linalg.eig(A)
+    if min(e) * theta <= -1 or max(e) * theta >= 1:
+        return []
+    D = np.diag(e) * theta
+    D = 1.0 / (1.0-D) - 1.0
+    M = np.dot(np.dot(V, D), np.linalg.inv(V))
+    return M
+
 def exact_hawkes_from(E, node, theta):
     A = eToA(E)
     e, V = np.linalg.eig(A)
@@ -85,6 +95,15 @@ def exact_hawkes_from(E, node, theta):
     D = 1.0 / (1.0-D) - 1.0
     M = np.dot(np.dot(V, D), np.linalg.inv(V))
     N = A.shape[0];
+    init = np.zeros(N)
+    init[node] = 1
+    ones = np.ones(N)
+    res = np.dot(M, init)
+    T = np.dot(ones, res) + 1
+    return T.real
+
+def exact_hawkes_from_diag(M, node):
+    N = M.shape[0];
     init = np.zeros(N)
     init[node] = 1
     ones = np.ones(N)

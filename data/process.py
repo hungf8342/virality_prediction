@@ -12,9 +12,13 @@ def main():
     for filename in os.listdir("graphlets"):
         if filename.endswith("gfc"): 
             graphlets = np.loadtxt(open(os.path.join("graphlets", filename), "rb"),usecols=range(2,48))
-            E = np.loadtxt(open(os.path.join("graphs", filename[:-4] + ".dat"), "rb"), dtype="int")
+
+            gDat = open(os.path.join("graphs", filename[:-4] + ".dat"), "rb")
+
+            firstLine = gDat.readline().split()
+            G = nx.read_edgelist(gDat)
             datVec = np.sum(graphlets, axis=0)
-            hawkes = hs.exact_hawkes_arr(E, 0.1426)
+            hawkes = hs.exact_hawkes_arr(G, 0.1426)
             if hawkes > 0:
                 xData.append(datVec)
                 yData.append(hawkes)

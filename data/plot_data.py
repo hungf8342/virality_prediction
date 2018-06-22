@@ -5,10 +5,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.metrics as mt
 
-D = pickle.load(open("outDataLocal_dolph.dat", "rb"))
+D = pickle.load(open("outDataLocal_rt-pol.dat", "rb"))
 
-xData = np.asarray(D[0])
-yData = np.log10(np.asarray(D[1]))
+x2Data = np.asarray(D[3])#.reshape(-1,1)
+xData = np.asarray(D[7]).reshape(-1,1)#[np.asarray(range(0, 1000)) * 33, :] #np.append(x2Data, np.asarray(D[0]), axis=1)
+yData = np.log10(np.asarray(D[3]))#[np.asarray(range(0, 1000)) * 33]
 
 inds = yData.argsort()
 
@@ -20,10 +21,15 @@ model = lm.LinearRegression()
 xTrain, xTest, yTrain, yTest = ms.train_test_split(xData, yData, test_size=0.3, random_state=64)
 
 model.fit(xTrain, yTrain)
-print(model.score(xTest, yTest))
 print(mt.r2_score(yTest, model.predict(xTest)))
+print(mt.mean_squared_error(yTest, model.predict(xTest)))
 print(model.coef_)
+print(model.intercept_)
 print(np.asarray(model.coef_).argsort())
-plt.plot(yTest, model.predict(xTest), "r.", alpha=0.2)
-plt.plot(yTest, yTest, "b-")
+plt.xlabel("exact # expected Hawkes events")
+plt.ylabel("predicted # expected Hawkes events")
+plt.title("Eigenvector Centrality to Local Expected Hawkes")
+plt.plot(yTest, model.predict(xTest), "r.", alpha=0.2, label="Linear Regression")
+plt.plot(yTest, yTest, "b-", label="Perfect Prediction")
+plt.legend()
 plt.show()

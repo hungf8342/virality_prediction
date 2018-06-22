@@ -9,14 +9,14 @@ import sklearn.linear_model as lm
 graph = nx.read_edgelist("graphs/soc-dolphins_f.txt")
 
 eig_coeff = 1/max(np.linalg.eig(nx.to_numpy_matrix(graph))[0])
-print(eig_coeff*.96)
+print(eig_coeff*.95)
 assortativity = []
 hawkes = []
 
-theta_scaled = .96
+theta_scaled = 0.50
 
-for i in range(10000):
-    sg.shuffle(graph, 1)
+for i in range(500):
+    nx.double_edge_swap(graph, nswap=100, max_tries=1000)
     e_hawkes = exact_hawkes(graph, 10000, theta_scaled * eig_coeff)
     if(e_hawkes > 0):
         assortativity.append(nx.degree_assortativity_coefficient(graph))

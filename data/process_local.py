@@ -29,6 +29,20 @@ def main():
     g_hawkes = []
     count = 0
     first = True
+    total_theta = 0
+    total_num = 0
+    for filename in os.listdir("graphlets"):
+        if filename.endswith("gfc"): 
+            # Load up the related graph
+            gDat = open(os.path.join("graphs", filename[:-4] + ".dat"), "rb")
+            firstLine = gDat.readline().split()
+            G = nx.read_edgelist(gDat, nodetype=int)
+            total_theta += ga.getCritTheta(G)
+            total_num += 1
+            print(str(total_num) + ': \t' + str((1.0 * total_theta)/total_num))
+
+    
+    theta = total_theta / total_num
     for filename in os.listdir("graphlets"):
         if filename.endswith("gfc"):
             
@@ -42,44 +56,38 @@ def main():
             nodeCount = loadMap(filename, N)
 
             # Load up GUISE global graphlet counts
-            globalDat = np.loadtxt(os.path.join("global_graphlets",
-                                    filename), dtype=int,
-                                    usecols=[1]) 
+#            globalDat = np.loadtxt(os.path.join("global_graphlets",
+#                                    filename), dtype=int,
+#                                    usecols=[1]) 
 
             # Load up the e-clog global graphlet counts
-            totalGraphlets = np.sum(nodeCount, axis=0)
-            
-            # Calculate the appropriate theta for this run
-            # based on the first shuffled graph
-            if first:
-                theta = ga.getCritTheta(G)
-                first = False
+            totalGraphlets = np.sum(nodeCount, axis=0) 
 
             # Calculate the expected hawkes events from each
             # node
-            hVec = hs.getHawkesVec(G, theta * 0.96)
+            hVec = hs.getHawkesVec(G, theta * 0.93)
 
-            cent = nx.closeness_centrality(G)
-            deg_c = nx.degree_centrality(G)
-            eig_c = nx.eigenvector_centrality(G)
+#            cent = nx.closeness_centrality(G)
+#            deg_c = nx.degree_centrality(G)
+#            eig_c = nx.eigenvector_centrality(G)
             
             if len(hVec) > 0:
                 for i in range(N):
                     #i = random.randint(0, N - 1)
-                    centrality = cent[i]
+#                    centrality = cent[i]
                     hawkes = hVec[i]
                     lgCount.append(nodeCount[i])
-                    ggCount.append(globalDat)
+#                    ggCount.append(globalDat)
                     l_hawkes.append(hawkes)
                     g_hawkes.append(np.mean(hVec))
                     
-                    cl_centData.append(centrality)
-                    dg_centData.append(deg_c[i])
-                    ev_centData.append(eig_c[i])
+#                    cl_centData.append(centrality)
+#                    dg_centData.append(deg_c[i])
+#                    ev_centData.append(eig_c[i])
                     
                     egCount.append(totalGraphlets)
-                    print(count)
                     count += 1
+                print(count)
             else:
                 print("-1")
     pickle.dump((lgCount, egCount, ggCount, l_hawkes, g_hawkes, cl_centData, dg_centData, ev_centData), open("outDataLocal_rt-pol.dat", 'wb'))

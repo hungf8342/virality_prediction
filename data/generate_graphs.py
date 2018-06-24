@@ -5,15 +5,17 @@ import numpy as np
 import networkx as nx
 
 def main():
-    graph = nx.read_edgelist("orig_graphs/soc-dolphins.txt") 
+    gDat = open("orig_graphs/rt-pol_50.dat", 'rb')
+    firstLine = gDat.readline().split()
+    graph = nx.read_edgelist(gDat)
 
-    for i in range(5000):
-        sg.shuffle(graph, 1)
-        filename = "graphs/dolphin_s_" + str(i) + ".dat"
-        output = [["62", "159"]]
+    for i in range(1000):
+        sg.shuffle(graph, 10)
+        filename = "graphs/rt-pol_s_" + str(i) + ".dat"
+        output = [firstLine]
         for line in nx.generate_edgelist(graph):
             vals = line.split()
-            output.append([int(vals[0]) - 1, int(vals[1]) - 1])
+            output.append([int(vals[0]), int(vals[1])])
         np.savetxt(open(filename, "wb"), output, fmt="%s")
         print(filename)
 

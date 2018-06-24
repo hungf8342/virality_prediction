@@ -1,4 +1,5 @@
 import numpy as np
+import networkx as nx
 
 # Calculates the degrees of the edges of a network
 def getDegree(E):
@@ -6,6 +7,22 @@ def getDegree(E):
     for edge in E:
         deg[edge[0] - 1] += 1
     return deg
+
+def eToA(E):
+    A = np.zeros((np.max(E) + 1, np.max(E) + 1))
+    for i in range(E.shape[0]):
+        A[E[i,0], E[i,1]] = 1;
+        A[E[i,1], E[i,0]] = 1;
+
+    return A
+
+def getCritTheta(G):
+    A = nx.to_numpy_array(G)
+    return 1/max(np.linalg.eig(A)[0])
+
+def getCritThetaEdge(E):
+    A = eToA(E)
+    return 1/max(np.linalg.eig(A)[0])
 
 # To calculate this, we use the Pearson Correlation Coefficient
 # of degrees at either end of a network edge

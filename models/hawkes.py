@@ -76,6 +76,24 @@ def exact_hawkes_arr(E, theta):
     T = np.dot(init, np.dot(M, init)) / N + 1
     return T.real
 
+def getEigData(G):
+    nodeOrder = range(len(G.nodes()))
+    A = nx.to_numpy_array(G, nodeOrder)
+    e, V = np.linalg.eig(A)
+    D = np.diag(e)
+    return D, V
+
+def getHawkesVecFromEig(D, V, theta):
+    if np.min(D) * theta <= -1 or np.max(D) * theta >= 1:
+        return []
+    D = 1.0 / (1.0-(D * theta)) - 1.0
+    M = np.dot(np.dot(V, D), np.linalg.inv(V))
+    N = M.shape[0]
+    ones = np.ones(N)
+    T = np.dot(ones, M) + 1
+    return np.real(T)
+
+
 def getHawkesVec(G, theta):
     nodeOrder = range(len(G.nodes()))
     A = nx.to_numpy_array(G, nodeOrder)
@@ -88,7 +106,7 @@ def getHawkesVec(G, theta):
     N = M.shape[0]
     ones = np.ones(N)
     T = np.dot(ones, M) + 1
-    return np.real(T[np.asarray(G.nodes()).astype(int)])
+    return np.real(T)
 
 def exact_hawkes_from(G, node, theta):
     A = nx.to_numpy_array(G)

@@ -9,8 +9,8 @@ import sklearn.metrics as mt
 
 D = pickle.load(open("outDataLocal_second_deg.dat", "rb"))
 
-xData = np.asarray(D[0])#.reshape(-1,1)
-#xData = np.log10(np.asarray(D[3]).reshape(-1,1) + 1)#[np.asarray(range(0, 1000)) * 33, :] #np.append(x2Data, np.asarray(D[0]), axis=1)
+#xData = np.asarray(D[0])#.reshape(-1,1)
+xData = np.log10(np.asarray(D[3]).reshape(-1,1))#[np.asarray(range(0, 1000)) * 33, :] #np.append(x2Data, np.asarray(D[0]), axis=1)
 yData = np.log10(np.asarray(D[4]))#[np.asarray(range(0, 1000)) * 33]
 
 inds = yData.argsort()

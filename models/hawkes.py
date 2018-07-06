@@ -80,14 +80,13 @@ def getEigData(G):
     nodeOrder = range(len(G.nodes()))
     A = nx.to_numpy_array(G, nodeOrder)
     e, V = np.linalg.eig(A)
-    D = np.diag(e)
-    return D, V
+    return e, V
 
 def getHawkesVecFromEig(D, V, theta):
     if np.min(D) * theta <= -1 or np.max(D) * theta >= 1:
         return []
     D = 1.0 / (1.0-(D * theta)) - 1.0
-    M = np.dot(np.dot(V, D), np.linalg.inv(V))
+    M = np.dot(np.multiply(V, D), V.T)
     N = M.shape[0]
     ones = np.ones(N)
     T = np.dot(ones, M) + 1
@@ -132,3 +131,13 @@ def exact_hawkes_from_diag(M, node):
     res = np.dot(M, init)
     T = np.dot(ones, res) + 1
     return T.real
+
+def get_sec_deg_dat(G):
+    A = nx.to_numpy_array(G)
+    d = np.asarray(G.degree())[:,1]
+    return d, np.dot(d, A)
+
+def get_sec_deg(d, dA, theta):
+    M = theta * d + theta * theta * dA
+    return M
+

@@ -37,12 +37,13 @@ def loadSecondDeg(G, theta):
         degrees[i] = theta * deg_map[i]
         for edge in G.edges(i):
             degrees[i] += (theta ** 2) * deg_map[edge[1]]
+            continue
             for edge2 in G.edges(edge[1]):
                 degrees[i] += (theta ** 3) * deg_map[edge2[1]]
                 for edge3 in G.edges(edge2[1]):
                     degrees[i] += (theta ** 4) * deg_map[edge3[1]]
     
-    return degrees
+    return degrees + 1
 
 def main():
     lgCount = []
@@ -83,7 +84,7 @@ def main():
             # Load up the local graphlet counts
             nodeCount = loadMap(filename, N)
             
-            sec_deg = loadSecondDeg(G, theta * 0.93)
+            sec_deg = loadSecondDeg(G, theta * 0.96)
             # Load up GUISE global graphlet counts
 #            globalDat = np.loadtxt(os.path.join("global_graphlets",
 #                                    filename), dtype=int,
@@ -94,7 +95,7 @@ def main():
 
             # Calculate the expected hawkes events from each
             # node
-            hVec = hs.getHawkesVec(G, theta * 0.93)
+            hVec = hs.getHawkesVec(G, theta * 0.96)
 
 #            cent = nx.closeness_centrality(G)
 #            deg_c = nx.degree_centrality(G)

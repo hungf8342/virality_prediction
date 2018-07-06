@@ -18,7 +18,7 @@ import networkx as nx
 
 
 def main():
-    gDat = open("orig_graphs/karate_1.txt", 'rb')
+    gDat = open("orig_graphs/socfb-Caltech36.mtx", 'rb')
     
     # Read the node and edge numbers
     firstLine = gDat.readline().split()
@@ -26,14 +26,14 @@ def main():
     # Load the rest of the data into a networkx network
     graph = nx.read_edgelist(gDat)
 
-    for i in range(2000):
+    for i in range(100):
         
         # Shuffle the network
-        nx.double_edge_swap(graph, nswap=100, max_tries=100000)
+        nx.double_edge_swap(graph, nswap=20000, max_tries=100000)
         
         # Load the network into another file with proper formatting
-        filename = "graphs/socfb_" + str(i) + ".dat"
-        g_filename = "global_graphs/socfb_" + str(i) + ".dat"
+        filename = "graphs/socfb_cal_" + str(i) + ".dat"
+        g_filename = "global_graphs/socfb_cal_" + str(i) + ".dat"
         output = [firstLine]
         g_output = []
         for line in nx.generate_edgelist(graph):

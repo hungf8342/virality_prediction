@@ -34,24 +34,22 @@ def main():
     graph_nodes = 0
 
     # Find the average critical theta for the shuffled graphs
-    for filename in os.listdir("graphlets"):
-        if filename.endswith("gfc"): 
-            
-            # Load up the related graphs
-            gDat = open(os.path.join("graphs", filename[:-4] + ".dat"), "rb")
-            firstLine = gDat.readline().split()
-
-            # Get the critical values
-            G = nx.read_edgelist(gDat, nodetype=int)
-            total_theta += ga.getCritTheta(G)
-            total_num += 1
-            print(str(total_num) + ': \t' + str((1.0 * total_theta)/total_num))
-            sys.stdout.flush()
+#    for filename in os.listdir("graphlets"):
+#        if filename.endswith("gfc"): 
+#            
+#            # Load up the related graphs
+#            gDat = open(os.path.join("graphs", filename[:-4] + ".dat"), "rb")
+#            firstLine = gDat.readline().split()
+#
+#            # Get the critical values
+#            G = nx.read_edgelist(gDat, nodetype=int)
+#            total_theta += ga.getCritTheta(G)
+#            total_num += 1
+#            print(str(total_num) + ': \t' + str((1.0 * total_theta)/total_num))
+#            sys.stdout.flush()
 
     # Take the average of the calculated theta
-    theta = np.real(total_theta) / total_num
-
-#    theta = 0.013597681
+    theta = 0.01359182820021423 #np.real(total_theta) / total_num
 
     # Initialize the outData matrix
     for alpha in np.linspace(0.7, 1.0, 500):
@@ -77,23 +75,21 @@ def main():
                 # Calculate the expected hawkes events from each
                 # node
                 hVec = hs.getHawkesVecFromEig(D, V, theta * outData[i][0])
-                sec_vec = hs.get_sec_deg(d, dA, theta * outData[i][0])
+                #sec_vec = hs.get_sec_deg(d, dA, theta * outData[i][0])
                 #sec_vec = loadSecondDeg(G, theta)
                 print(str(count) + ": " + str(outData[i][0]))
 
                 if len(hVec) > 0:
                     for j in range(N):
                         #i = random.randint(0, N - 1)
-                        outData[i][1].append(sec_vec[j])
+                        outData[i][1].append([d[j],dA[j], d[j] + theta * outData[i][0] * dA[j]])  #sec_vec[j])
                         outData[i][2].append(hVec[j])
             count += 1
-#            if count > 10:
-#                break
             print(count)
             sys.stdout.flush()
    
     # Initialize data arrays
-    rSqare = []
+    rSquare = []
     rms = []
     coeff = []
     alphas = []
@@ -106,7 +102,7 @@ def main():
         if len(data[2]) > 0:
 
             # Train the linear model
-            xData = np.asarray(data[1]).reshape(-1,1)
+            xData = np.asarray(data[1])
             yData = np.log10(np.asarray(data[2]))
             model = lm.LinearRegression()
             xTrain, xTest, yTrain, yTest = ms.train_test_split(xData, yData, test_size=0.3, random_state=64)
@@ -117,7 +113,7 @@ def main():
             alphas.append(data[0])
             
             # Get the r^2 data
-            rSqare.append(mt.r2_score(yTest, model.predict(xTest)))
+            rSquare.append(mt.r2_score(yTest, model.predict(xTest)))
 
             # Get the rms data
             rms.append(mt.mean_squared_error(yTest, model.predict(xTest)))
@@ -150,22 +146,30 @@ def main():
             top_5_acc.append(np.mean(total_top_5))
             top_10_acc.append(np.mean(total_top_10))
 
+    average_hwks = np.asarray(average_hwks)
+    top_1_acc = np.asarray(top_1_acc)
+    top_5_acc = np.asarray(top_5_acc)
+    top_10_acc = np.asarray(top_10_acc)
+    rSquare = np.asarray(rSquare)
+    rms = np.asarray(rms)
+    ind = np.argsort(average_hwks)
+ 
     # top 1 accuracy
-    plt.plot(average_hwks, top_1_acc)
+    plt.plot(average_hwks[ind], top_1_acc[ind])
     plt.xlabel("Average Number of Hawkes Events (log)")
     plt.ylabel('top 1 correct')
     plt.savefig("top_1_sec.png")
     plt.close()
 
     # top 5 accuracy
-    plt.plot(average_hwks, top_5_acc)
+    plt.plot(average_hwks[ind], top_5_acc[ind])
     plt.xlabel("Average Number of Hawkes Events (log)")
     plt.ylabel('top 5 correct')
     plt.savefig("top_5_sec.png")
     plt.close()
 
     # top 10 accuracy
-    plt.plot(average_hwks, top_10_acc)
+    plt.plot(average_hwks[ind], top_10_acc[ind])
     plt.xlabel("Average Number of Hawkes Events (log)")
     plt.ylabel('top 10 correct')
     plt.savefig("top_10_sec.png")
@@ -173,14 +177,14 @@ def main():
 
 
     # r^2 score
-    plt.plot(average_hwks, rSqare)
+    plt.plot(average_hwks[ind], rSquare[ind])
     plt.xlabel("Average Number of Hawkes Events (log)")
     plt.ylabel(r'$R^2$')
     plt.savefig("rSquare_sec.png")
     plt.close()
 
     # rms
-    plt.plot(average_hwks, rms)
+    plt.plot(average_hwks[ind], rms[ind])
     plt.xlabel("Average Number of Hawkes Events (log)")
     plt.ylabel('Root Mean Squared')
     plt.savefig("rms_sec.png")
@@ -195,7 +199,7 @@ def main():
     
     # test fit to one alpha on all other alphas
     rSquareSpread = []
-    xData = np.asarray(outData[416][1]).reshape(-1,1)
+    xData = np.asarray(outData[416][1])
     yData = np.log10(np.asarray(outData[416][2]))
     model = lm.LinearRegression()
     xTrain, xTest, yTrain, yTest = ms.train_test_split(xData, yData, test_size=0.3, random_state=64)
@@ -203,7 +207,7 @@ def main():
 
     for data in outData:
         if len(data[2]) > 0:
-            xData = np.asarray(data[1]).reshape(-1,1)
+            xData = np.asarray(data[1])
             yData = np.log10(np.asarray(data[2]))
             rSquareSpread.append(max(mt.r2_score(yData, model.predict(xData)), 0))
     

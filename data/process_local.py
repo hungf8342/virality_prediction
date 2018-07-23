@@ -7,10 +7,20 @@ import models.hawkes as hs
 import graph_manip.graphAttribs as ga
 import pickle
 
+# Loads the local graphlet vector for each node
 def loadMap(filename, numNodes):
+    
+    # Initialize a vector for each node
     nodeCount = np.zeros((numNodes, 46))
+
+    # Open the edge-to-graphlet file
     graphlets = open(os.path.join("graphlets", filename), "rb")
+    
+    # Iterate through every edge
     for line in graphlets:
+
+        # Add the graphlet count for an edge to its 
+        # corresponding nodes
         data = line.split()
         n1 = int(data[0])
         n2 = int(data[1][:-1])
@@ -18,10 +28,28 @@ def loadMap(filename, numNodes):
             nodeCount[n1][i] += int(data[i + 2])
             nodeCount[n2][i] += int(data[i + 2])
     return nodeCount
+
+# Loads the secondary degree of each node
+def loadSecondDeg(G, theta):
+    degrees = np.zeros(len(G.nodes()))
+    deg_map = G.degree()
+    for i in range(len(degrees)):
+        degrees[i] = theta * deg_map[i]
+        for edge in G.edges(i):
+            degrees[i] += (theta ** 2) * deg_map[edge[1]]
+            continue
+            for edge2 in G.edges(edge[1]):
+                degrees[i] += (theta ** 3) * deg_map[edge2[1]]
+                for edge3 in G.edges(edge2[1]):
+                    degrees[i] += (theta ** 4) * deg_map[edge3[1]]
+    
+    return degrees + 1
+
 def main():
     lgCount = []
     egCount = []
     ggCount= []
+    sec_degs = []
     cl_centData = []
     dg_centData = []
     ev_centData = []
@@ -40,9 +68,10 @@ def main():
             total_theta += ga.getCritTheta(G)
             total_num += 1
             print(str(total_num) + ': \t' + str((1.0 * total_theta)/total_num))
+            sys.stdout.flush()
 
     
-    theta = total_theta / total_num
+    theta = np.real(total_theta) / total_num
     for filename in os.listdir("graphlets"):
         if filename.endswith("gfc"):
             
@@ -54,7 +83,8 @@ def main():
     
             # Load up the local graphlet counts
             nodeCount = loadMap(filename, N)
-
+            
+            sec_deg = loadSecondDeg(G, theta * 0.96)
             # Load up GUISE global graphlet counts
 #            globalDat = np.loadtxt(os.path.join("global_graphlets",
 #                                    filename), dtype=int,
@@ -65,7 +95,7 @@ def main():
 
             # Calculate the expected hawkes events from each
             # node
-            hVec = hs.getHawkesVec(G, theta * 0.93)
+            hVec = hs.getHawkesVec(G, theta * 0.96)
 
 #            cent = nx.closeness_centrality(G)
 #            deg_c = nx.degree_centrality(G)
@@ -80,7 +110,7 @@ def main():
 #                    ggCount.append(globalDat)
                     l_hawkes.append(hawkes)
                     g_hawkes.append(np.mean(hVec))
-                    
+                    sec_degs.append(sec_deg[i])
 #                    cl_centData.append(centrality)
 #                    dg_centData.append(deg_c[i])
 #                    ev_centData.append(eig_c[i])
@@ -88,7 +118,8 @@ def main():
                     egCount.append(totalGraphlets)
                     count += 1
                 print(count)
+                sys.stdout.flush()
             else:
                 print("-1")
-    pickle.dump((lgCount, egCount, ggCount, l_hawkes, g_hawkes, cl_centData, dg_centData, ev_centData), open("outDataLocal_rt-pol.dat", 'wb'))
+    pickle.dump((lgCount, egCount, ggCount, sec_degs, l_hawkes, g_hawkes, cl_centData, dg_centData, ev_centData), open("outDataLocal_second_deg.dat", 'wb'))
 main()

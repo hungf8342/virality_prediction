@@ -34,22 +34,22 @@ def main():
     graph_nodes = 0
 
     # Find the average critical theta for the shuffled graphs
-#    for filename in os.listdir("graphlets"):
-#        if filename.endswith("gfc"): 
-#            
-#            # Load up the related graphs
-#            gDat = open(os.path.join("graphs", filename[:-4] + ".dat"), "rb")
-#            firstLine = gDat.readline().split()
-#
-#            # Get the critical values
-#            G = nx.read_edgelist(gDat, nodetype=int)
-#            total_theta += ga.getCritTheta(G)
-#            total_num += 1
-#            print(str(total_num) + ': \t' + str((1.0 * total_theta)/total_num))
-#            sys.stdout.flush()
+    for filename in os.listdir("graphlets"):
+        if filename.endswith("gfc"): 
+            
+            # Load up the related graphs
+            gDat = open(os.path.join("graphs", filename[:-4] + ".dat"), "rb")
+            firstLine = gDat.readline().split()
+
+            # Get the critical values
+            G = nx.read_edgelist(gDat, nodetype=int)
+            total_theta += ga.getCritTheta(G)
+            total_num += 1
+            print(str(total_num) + ': \t' + str((1.0 * total_theta)/total_num))
+            sys.stdout.flush()
 
     # Take the average of the calculated theta
-    theta = 0.01359182820021423 #np.real(total_theta) / total_num
+    theta = np.real(total_theta) / total_num
 
     # Initialize the outData matrix
     for alpha in np.linspace(0.7, 1.0, 500):
@@ -134,9 +134,9 @@ def main():
                 ordY = np.argsort(curY)
                 ordPredY = np.argsort(predY)
 
-                top_1 = set(ordY[:1]) & set(ordPredY[:1])
-                top_5 = set(ordY[:5]) & set(ordPredY[:5])
-                top_10 = set(ordY[:10]) & set(ordPredY[:10])
+                top_1 = set(ordY[-1:]) & set(ordPredY[-1:])
+                top_5 = set(ordY[-5:]) & set(ordPredY[-5:])
+                top_10 = set(ordY[-10:]) & set(ordPredY[-10:])
 
                 total_top_1.append(len(top_1))
                 total_top_5.append(len(top_5))

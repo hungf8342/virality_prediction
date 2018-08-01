@@ -50,13 +50,12 @@ def main():
 #            sys.stdout.flush()
 
     # Take the average of the calculated theta
-    theta = 0.01359182820021423 #total_theta / total_num
+    theta = 0.01359659617519907 #total_theta / total_num
 
     # Initialize the outData matrix
-    for alpha in np.linspace(0.7, 1.0, 1000):
-        lgcount = []
-        hawkes = []
-        outData.append((alpha, lgcount, hawkes))
+    for alpha in np.linspace(0.7, 1.0, 500):
+        network_data = []
+        outData.append((alpha, network_data))
     
     # Load in data from files
     for filename in os.listdir("graphlets"):
@@ -75,19 +74,54 @@ def main():
             D, V = hs.getEigData(G)
 
             for i in range(len(outData)):
+                outData[i][1].append(([],[]))
                 # Calculate the expected hawkes events from each
                 # node
                 hVec = hs.getHawkesVecFromEig(D, V, theta * outData[i][0])
                 if len(hVec) > 0:
                     for j in range(N):
                         #i = random.randint(0, N - 1)
-                        outData[i][1].append(nodeCount[j])
-                        outData[i][2].append(hVec[j])
+                        outData[i][1][-1][0].append(nodeCount[j])
+                        outData[i][1][-1][1].append(hVec[j])
             count += 1
+            if count > 10:
+                break
             print(count)
             sys.stdout.flush()
    
+    # Process data for both linear regression and ordering
+
+    separated_dat = []
+    log_dat = []
+    for theta_dat in outData:
+        test_ind = set(random.sample(range(len(theta_dat[1])), int(len(theta_dat[1]) * 0.3)))
+        print test_ind
+        
+        # Process normal data
+        separated_dat.append([theta_dat[0], [], [], [], []])
+        for i in range(len(theta_dat[1])):
+            if i in test_ind:
+                separated_dat[-1][1] += theta_dat[1][i][0]
+                separated_dat[-1][2] += theta_dat[1][i][1]
+            else:
+                separated_dat[-1][3] += theta_dat[1][i][0]
+                separated_dat[-1][4] += theta_dat[1][i][1]
+
+        # Process top-k data
+        log_dat.append([theta_dat[0], [], [], [], []])
+        for i in range(len(theta_dat[1])):
+            sort_ind = np.argsort(theta_dat[1][i][1])
+            new_dat = np.zeros(len(theta_dat[1][i][1]))#np.linspace(0, 1, len(theta_dat[1][i][1]))
+            new_dat[-10:] = 1
+            if i in test_ind:
+                log_dat[-1][1] += np.asarray(theta_dat[1][i][0])[sort_ind].tolist()
+                log_dat[-1][2] += new_dat.tolist()
+            else:
+                log_dat[-1][3] += np.asarray(theta_dat[1][i][0])[sort_ind].tolist()
+                log_dat[-1][4] += new_dat.tolist()
+
     # Initialize data arrays
+    
     rSquare = []
     rms = []
     coeff = []
@@ -97,15 +131,23 @@ def main():
     top_1_acc = []
     top_5_acc = []
     top_10_acc = []
-    for data in outData:
-        if len(data[2]) > 0:
+    top_1_acc_log = []
+    top_5_acc_log = []
+    top_10_acc_log = []
+    
+    for sd_ind in range(len(separated_dat)):
+        data = separated_dat[sd_ind]
+        log_data = log_dat[sd_ind]
+        if len(data[1]) > 0 and len(data[3]) > 0:
 
             # Train the linear model
-            xData = np.asarray(data[1])
-            yData = np.log10(np.asarray(data[2]))
+            xTest = data[1]
+            yTest = np.log10(data[2])
+            xTrain = data[3]
+            yTrain = np.log10(data[4])
+            xData = np.append(xTest, xTrain, axis=0) 
+            yData = np.append(yTest, yTrain)
             model = lm.LinearRegression()
-            xTrain, xTest, yTrain, yTest = ms.train_test_split(xData, yData, test_size=0.3, random_state=64)
-            print(data[0])
             model.fit(xTrain, yTrain)
 
             # Get the alpha which correlates with this
@@ -136,10 +178,9 @@ def main():
                 predY = model.predict(xData[i * graph_nodes:graph_nodes * (i + 1)])
                 ordY = np.argsort(curY)
                 ordPredY = np.argsort(predY)
-
-                top_1 = set(ordY[:1]) & set(ordPredY[:1])
-                top_5 = set(ordY[:5]) & set(ordPredY[:5])
-                top_10 = set(ordY[:10]) & set(ordPredY[:10])
+                top_1 = set(ordY[-1:]) & set(ordPredY[-1:])
+                top_5 = set(ordY[-5:]) & set(ordPredY[-5:])
+                top_10 = set(ordY[-10:]) & set(ordPredY[-10:])
 
                 total_top_1.append(len(top_1))
                 total_top_5.append(len(top_5))
@@ -149,10 +190,46 @@ def main():
             top_5_acc.append(np.mean(total_top_5))
             top_10_acc.append(np.mean(total_top_10))
 
+            # Get logistic regression rankings
+            
+            
+            xTest = log_data[1]
+            yTest = log_data[2]
+            xTrain = log_data[3]
+            yTrain = log_data[4]
+            model = lm.LinearRegression()
+            model.fit(xTrain, yTrain)
+
+            total_top_1_log  = [] 
+            total_top_5_log  = [] 
+            total_top_10_log = []
+            # Get node ranking data
+            print(data[0]) 
+            for i in range(len(yData) / graph_nodes):
+                curY = yData[i * graph_nodes:graph_nodes * (i + 1)]
+                predY = model.predict(xData[i * graph_nodes:graph_nodes * (i + 1)])
+                ordY = np.argsort(curY)
+                ordPredY = np.argsort(predY)
+
+                top_1 = set(ordY[-1:]) & set(ordPredY[-1:])
+                top_5 = set(ordY[-5:]) & set(ordPredY[-5:])
+                top_10 = set(ordY[-10:]) & set(ordPredY[-10:])
+
+                total_top_1_log.append(len(top_1))
+                total_top_5_log.append(len(top_5))
+                total_top_10_log.append(len(top_10))
+
+            top_1_acc_log.append(np.mean(total_top_1_log))
+            top_5_acc_log.append(np.mean(total_top_5_log))
+            top_10_acc_log.append(np.mean(total_top_10_log))
+
     average_hwks = np.asarray(average_hwks)
     top_1_acc = np.asarray(top_1_acc)
     top_5_acc = np.asarray(top_5_acc)
     top_10_acc = np.asarray(top_10_acc)
+    top_1_acc_log = np.asarray(top_1_acc_log)
+    top_5_acc_log = np.asarray(top_5_acc_log)
+    top_10_acc_log = np.asarray(top_10_acc_log)
     rSquare = np.asarray(rSquare)
     rms = np.asarray(rms)
     ind = np.argsort(average_hwks)
@@ -176,6 +253,27 @@ def main():
     plt.xlabel("Average Number of Hawkes Events (log)")
     plt.ylabel('top 10 correct')
     plt.savefig("top_10.png")
+    plt.close()
+    
+    # top 1 logistic accuracy
+    plt.plot(average_hwks[ind], top_1_acc_log[ind])
+    plt.xlabel("Average Number of Hawkes Events (log)")
+    plt.ylabel('top 1 correct')
+    plt.savefig("top_1_log.png")
+    plt.close()
+
+    # top 5 logistic accuracy
+    plt.plot(average_hwks[ind], top_5_acc_log[ind])
+    plt.xlabel("Average Number of Hawkes Events (log)")
+    plt.ylabel('top 5 correct')
+    plt.savefig("top_5_log.png")
+    plt.close()
+
+    # top 10 logistic accuracy
+    plt.plot(average_hwks[ind], top_10_acc_log[ind])
+    plt.xlabel("Average Number of Hawkes Events (log)")
+    plt.ylabel('top 10 correct')
+    plt.savefig("top_10_log.png")
     plt.close()
 
 
@@ -202,16 +300,18 @@ def main():
     
     # test fit to one alpha on all other alphas
     rSquareSpread = []
-    xData = np.asarray(outData[416][1])
-    yData = np.log10(np.asarray(outData[416][2]))
+    thisData = separated_dat[416]
+    xTest   = thisData[1]
+    yTest   = np.log10(thisData[2])
+    xTrain  = thisData[3]
+    yTrain  = np.log10(thisData[4])
     model = lm.LinearRegression()
-    xTrain, xTest, yTrain, yTest = ms.train_test_split(xData, yData, test_size=0.3, random_state=64)
     model.fit(xTrain, yTrain)
 
-    for data in outData:
-        if len(data[2]) > 0:
-            xData = np.asarray(data[1])
-            yData = np.log10(np.asarray(data[2]))
+    for data in separated_dat:
+        if len(data[1]) > 0:
+            yData = np.log10(np.append(data[2], data[4]))
+            xData = np.append(data[1], data[3], axis=0)
             rSquareSpread.append(max(mt.r2_score(yData, model.predict(xData)), 0))
     
     plt.plot(average_hwks, rSquareSpread)

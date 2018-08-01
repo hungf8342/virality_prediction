@@ -1,6 +1,7 @@
 *.pyc
-*.png
 *.dat
 *.log
 *.o
 *.gch
+*graphlets
+*graphs

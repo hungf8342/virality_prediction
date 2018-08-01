@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import sklearn.metrics as mt
 
 
+# Loads in the edge-data from the e-clog files
 def loadMap(filename, numNodes):
     nodeCount = np.zeros((numNodes, 46))
     graphlets = open(os.path.join("graphlets", filename), "rb")
@@ -28,7 +29,7 @@ def loadMap(filename, numNodes):
     return nodeCount
 
 
-
+# Takes a logistic regression based on the input arguments
 def logReg(trainX, trainY, testData):
     
     model = lm.LinearRegression()
@@ -65,22 +66,22 @@ def main():
     graph_nodes = 0
 
     # Find the average critical theta for the shuffled graphs
-#    for filename in os.listdir("graphlets"):
-#        if filename.endswith("gfc"): 
-#            
-#            # Load up the related graphs
-#            gDat = open(os.path.join("graphs", filename[:-4] + ".dat"), "rb")
-#            firstLine = gDat.readline().split()
-#
-#            # Get the critical values
-#            G = nx.read_edgelist(gDat, nodetype=int)
-#            total_theta += ga.getCritTheta(G)
-#            total_num += 1
-#            print(str(total_num) + ': \t' + str((1.0 * total_theta)/total_num))
-#            sys.stdout.flush()
+    for filename in os.listdir("graphlets"):
+        if filename.endswith("gfc"): 
+            
+            # Load up the related graphs
+            gDat = open(os.path.join("graphs", filename[:-4] + ".dat"), "rb")
+            firstLine = gDat.readline().split()
+
+            # Get the critical values
+            G = nx.read_edgelist(gDat, nodetype=int)
+            total_theta += ga.getCritTheta(G)
+            total_num += 1
+            print(str(total_num) + ': \t' + str((1.0 * total_theta)/total_num))
+            sys.stdout.flush()
 
     # Take the average of the calculated theta
-    theta = 0.9965 * 0.01438017516555193 #total_theta / total_num
+    theta = 0.9965 * total_theta / total_num
  
     # Load in data from files
     outData = []
@@ -97,29 +98,30 @@ def main():
             # Load up the local graphlet counts
             nodeCount = loadMap(filename, N)
            
+            #Loads up the eigenvalue data for the hawkes calculation
             D, V = hs.getEigData(G)
-            # Calculate the expected hawkes events from each
-            # node
-            hVec = hs.getHawkesVecFromEig(D, V, theta)
-            cVec = nx.triangles(G)
-            print "Done with Hawkes"
 
-            
+            # Calculate the expected hawkes events from each node
+            hVec = hs.getHawkesVecFromEig(D, V, theta)
+
+            # Calculate the number of triangles around each node
+            cVec = nx.triangles(G)
+
+            # Put together the data if the hawkes process converges
             if len(hVec) > 0:
                 outData.append([[],[]])
                 for j in range(N):
-                    #i = random.randint(0, N - 1)
                     outData[-1][0].append(hVec[j])
                     outData[-1][1].append(np.append(nodeCount[j], [cVec[j]]))
             count += 1
             print(count)
             sys.stdout.flush()
 
-    # Process data for both linear regression and ordering
-
+    # Convert data to add weight to top 10
+    
     separated_dat = []
     log_dat = []
-
+    # Separate test and training data
     test_ind = set(random.sample(range(len(outData)), int(len(outData) * 0.3)))
     print test_ind
 

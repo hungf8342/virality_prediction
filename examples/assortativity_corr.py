@@ -1,5 +1,7 @@
 import numpy as np
 import networkx as nx
+import os, sys
+sys.path.insert(0, '../')
 import graph_manip.shuffleGraphs as sg 
 from models.hawkes import exact_hawkes
 import matplotlib.pyplot as plt

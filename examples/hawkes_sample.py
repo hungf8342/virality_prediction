@@ -1,4 +1,6 @@
 import networkx as nx
+import os, sys
+sys.path.insert(0, '../')
 import graph_manip.shuffleGraphs as sg
 import graph_manip.graphAttribs as ga
 import models.hawkes as hk

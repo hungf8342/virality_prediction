@@ -18,7 +18,7 @@ import networkx as nx
 
 
 def main():
-    gDat = open("orig_graphs/socfb-Reed98.mtx", 'rb')
+    gDat = open("orig_graphs/rt-assad.mtx", 'rb')
     
     # Read the node and edge numbers
     firstLine = gDat.readline().split()
@@ -33,16 +33,16 @@ def main():
         
         # Load the network into another file with proper formatting
         filename = "graphs/socfb_cal_" + str(i) + ".dat"
-        g_filename = "global_graphs/socfb_cal_" + str(i) + ".dat"
+#        g_filename = "global_graphs/socfb_cal_" + str(i) + ".dat"
         output = [firstLine]
-        g_output = []
+#        g_output = []
         for line in nx.generate_edgelist(graph):
             vals = line.split()
             output.append([int(vals[0]), int(vals[1])])
-            g_output.append([int(vals[0]), int(vals[1])])
+#            g_output.append([int(vals[0]), int(vals[1])])
 
         np.savetxt(open(filename, "wb"), output, fmt="%s")
-        np.savetxt(open(g_filename, "wb"), g_output, delimiter='\t', fmt="%s")
+#        np.savetxt(open(g_filename, "wb"), g_output, delimiter='\t', fmt="%s")
         print(filename)
 
 main()

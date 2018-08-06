@@ -1,0 +1,12 @@
+read time: 0.001936sec
+Create Adj list time: 0.000137sec
+edge sorting time: 6.9e-05sec
+edge conversion time: 1.4e-05sec
+sorting started
+index sorted
+edge sorted
+edge sorting time: 0.000139sec
+Max # threads: 80
+# threads approved: 80
+freq counting time: 0.169418sec
+write time: 0.01613sec

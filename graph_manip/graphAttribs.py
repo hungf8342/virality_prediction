@@ -1,6 +1,18 @@
 import numpy as np
 import networkx as nx
 
+
+def loadGraph(filename):
+    gDat = open(filename, 'rb')
+    
+    # Read the node and edge numbers
+    firstLine = gDat.readline().split()
+    
+    # Load the rest of the data into a networkx network
+    graph = nx.read_edgelist(gDat)
+    return graph
+
+
 # Calculates the degrees of the edges of a network
 def getDegree(E):
     deg = np.zeros(np.max(E))
@@ -47,3 +59,14 @@ def assortativity(E):
     assort = numer / denom
 
     return assort
+
+def getThetaDist(G, num_shuffles, num_graphs, debug=False):
+    data = []
+    for i in range(num_graphs):
+        
+        nx.double_edge_swap(G, nswap=num_shuffles, max_tries=(10 * num_shuffles))
+        data.append(getCritTheta(G))
+        if debug:
+            print i
+
+    return data

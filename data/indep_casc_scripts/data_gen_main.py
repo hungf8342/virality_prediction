@@ -35,5 +35,5 @@ def plot_roc(data,tests):
     ax.set_ylabel('AUC')
     ax.set_xlabel('')
     plt.savefig("../"+str(data)+"/rocs.png")
-#data_gen("Caltech-X10","socfb-Caltech36.txt",10)
-plot_roc("Caltech-X20",[5,10,15,20,25])
+data_gen("Caltech-X20","socfb-Caltech36.txt",20)
+#plot_roc("Caltech-X10",[5,10,15,20,25])

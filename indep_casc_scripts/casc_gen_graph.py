@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '../../')
+sys.path.insert(0, '../')
 import graph_manip.shuffleGraphs as sg
 import numpy as np
 import numpy.random as nr
@@ -8,7 +8,7 @@ import scipy.stats as stats
 import pandas as pd
 
 def clean():
-    data = pd.read_csv('orig_graphs/soc-Haverford.txt', sep=" ", header=None)
+    data = pd.read_csv('../data/orig_graphs/soc-Haverford.txt', sep=" ", header=None)
     data.iloc[1:]=data.iloc[1:]-1
 
 def gen(data,filename):
@@ -22,7 +22,7 @@ def gen(data,filename):
     weights=X.rvs(len(graph.edges))
 
     complete=[]
-    filename_w="../"+str(data)+"/weight/"+str(data)+"_s_0.txt"
+    filename_w="../data/"+str(data)+"/weight/"+str(data)+"_s_0.txt"
     t=0
     #make edges+weight file
     for line in nx.generate_edgelist(graph):

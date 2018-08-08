@@ -1,5 +1,5 @@
 import sys,os
-sys.path.insert(0, '../../')
+sys.path.insert(0, '../')
 import models.indep_cascade as ic
 import pandas as pd
 import networkx as nx
@@ -20,6 +20,7 @@ def find_neighbors(graph,active_list):
     nodes=set()
     #appending neighbors
     for node in active_list:
+        #print(node)
         neighbors=list(graph[str(int(node))].keys())
         nodes.update(neighbors)
     neighsq=set()
@@ -76,45 +77,74 @@ def lin_reg(x,y,counts):
            rocs=rocs+roc_auc_score(y_test,preds[:,1])
     return rocs/5
 
-def lir_find(data,filename):
-    weight=np.loadtxt(os.path.join("../"+str(data)+"/weight",str(data)+"_s_0" + ".txt"))
-    gDat = open("../orig_graphs/"+filename, 'rb')
+def eig_cent(data,filename):
+    weight=np.loadtxt(os.path.join("../data/"+str(data)+"/weight",str(data)+"_s_0" + ".txt"))
+    gDat = open("../data/orig_graphs/"+filename, 'rb')
     firstLine = gDat.readline().split()
     graph=nx.read_edgelist(gDat)
-    print(len(list(range(0,len(graph.nodes())+1))))
-    print(len(lir(graph)))
+    eig=pd.DataFrame.from_dict(nx.eigenvector_centrality(graph),orient='index')
+    eig['nodes'] = eig.index
+
+    sorte=eig.sort_values(by=0,axis=0,ascending=False)
+    nodes=sorte.iloc[:3,1].values.tolist()
+    print(nodes)
+    count_f,act,tim=ic.indep_casc(weight,nodes,1000)
+    print(count_f)
+
+
+def lir_find(data,filename):
+    weight=np.loadtxt(os.path.join("../data/"+str(data)+"/weight",str(data)+"_s_0" + ".txt"))
+    gDat = open("../data/orig_graphs/"+filename, 'rb')
+    firstLine = gDat.readline().split()
+    graph=nx.read_edgelist(gDat)
+    #print(len(list(range(0,len(graph.nodes())+1))))
+    #print(len(lir(graph)))
     #sort nodes by lir score: retain 0-LIR score Nodes
     d={'nodes':list(range(0,len(graph.nodes())+1)),'lir':lir(graph)}
     lir_index=pd.DataFrame(data=d)
-    print(lir_index)
-    zero_lir=lir_index.loc[(lir_index['lir']==0)]
+    #print(lir_index)
+    zero_lir=lir_index.loc[np.isin(lir_index['lir'],[0])]
     logreg=cPickle.load(open("regmodel.sav",'rb'))
-    print(list(zero_lir.index))
-    count_f,act,tim=ic.indep_casc(weight,[256,889,1446],1000)
-    print(count_f)
+    #print(list(zero_lir.index))
+
+    top_k=[]
+
     #count,actives,time=ic.indep_casc(weight,list(zero_lir.index),1000)
     #print(count)
     # run a single-casc simul from each, get their probability of doubling or x-factoring
     for node in list(zero_lir.index):
+        print(node)
+        print("degree: " +str(graph.degree(str(node))))
         count,actives,time=ic.indep_casc(weight,[node],5)
+        #print(graph.degree(str(node)))
         #find graphlet _countssubgraph=find_neighbors(graph,active_nodes)
-        subgraph=find_neighbors(graph,actives)
-        nx.write_edgelist(subgraph,os.path.join("../"+str(data)+"/subgraphs",filename),data=False)
-        sanitize="python ../../escape/python/sanitize.py "+"../"+str(data)+"/subgraphs "+ str(filename)+" >log.txt"
-        os.system(sanitize)
-        os.remove(os.path.join("../"+str(data)+"/subgraphs",filename))
-        cmd="python ../../escape/wrappers/subgraph_counts.py "+"../"+str(data)+"/subgraphs/"+filename[:-4]+".edges"+" 5"+" >log.txt"
-        os.system(cmd)
-        line=np.loadtxt("out.txt")[2:]
-        actives=line
-        actives=np.append(actives,1)
-        actives=actives.reshape(1,-1)
+        if (type(graph.degree(str(node)))==int):
+            subgraph=find_neighbors(graph,actives)
+            nx.write_edgelist(subgraph,os.path.join("../data/"+str(data)+"/subgraphs",filename),data=False)
+            sanitize="python ../escape/python/sanitize.py "+"../data/"+str(data)+"/subgraphs "+ str(filename)+" >log.txt"
+            os.system(sanitize)
+            os.remove(os.path.join("../data/"+str(data)+"/subgraphs",filename))
+            cmd="python ../escape/wrappers/subgraph_counts.py "+"../data/"+str(data)+"/subgraphs/"+filename[:-4]+".edges"+" 5"+" >log.txt"
+            os.system(cmd)
+            line=np.loadtxt("out.txt")[2:]
+            actives=line
+            #actives=np.append(actives,1)
+            actives=actives.reshape(1,-1)
 
 
-        print(logreg.predict_proba(actives))
+            #print(logreg.predict_proba(actives)[0][1])
+            top_k.append([node,logreg.predict_proba(actives)[0][1]])
+        #print(count)
+    top_k=np.vstack(top_k)
 
+    nodes=top_k[top_k[:,1].argsort()][::-1][:3,0]
+    print(nodes)
+    count_f,act,tim=ic.indep_casc(weight,nodes,1000)
+    print(count_f)
     #pick the top k nodes, test
+
     return count
-data="socReed-X10"
-lin_reg("../"+str(data)+"/subGraphs_logistic/"+str(data)+"_Xwavesub.txt","../"+str(data)+"/subGraphs_logistic/"+str(data)+"_Ywavesub.txt","../"+str(data)+"/subGraphs_logistic/"+str(data)+"_count.txt")
-lir_find("Haverford-31","soc-Haverford.txt")
+data="alv-X10"
+lin_reg("../data/"+str(data)+"/subGraphs_logistic/"+str(data)+"_Xwavesub4.txt","../data/"+str(data)+"/subGraphs_logistic/"+str(data)+"_Ywavesub4.txt","../data/"+str(data)+"/subGraphs_logistic/"+str(data)+"_count4.txt")
+lir_find("alv-X10","soc-advogato.txt")
+eig_cent(data,"soc-advogato.txt")

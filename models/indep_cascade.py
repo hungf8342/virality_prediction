@@ -27,8 +27,9 @@ def make_matrix(data):
 #parameters are Nx3 matrix of edges & probabilities and a starting node, outputs final active nodes
 def indep_casc(edges_probs,s,t):
     active=[]
-    new_active=np.asarray([s]).astype(int)
+    new_active=list(map(int,s))
     info_mat=make_matrix(edges_probs)
+    time=1
     #while there are still newly active nodes, find the oldest's neighbors
 
     while len(new_active)>0:
@@ -48,4 +49,4 @@ def indep_casc(edges_probs,s,t):
             t=t-1
             if (t<0):
                 break
-    return len(active),active
+    return len(active),active,time

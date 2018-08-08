@@ -46,12 +46,12 @@ def reg(x,y,counts,save,type,k):
 
 def update(data,test):
     for i in range(5):
-        reg("../"+str(data)+"/subGraphs_logistic/"+str(data)+"_Xwavesub"+str(i)+".txt",
-            "../"+str(data)+"/subGraphs_logistic/"+str(data)+"_Ywavesub"+str(i)+".txt",
-            "../"+str(data)+"/subGraphs_logistic/"+str(data)+"_count"+str(i)+".txt",
-            "../"+str(data)+"/rocGraphs/"+str(test[i])+str(data),"Graphlets",test[i])
-        reg("../"+str(data)+"/cent/"+str(data)+"_Xwave"+str(i)+".txt",
-            "../"+str(data)+"/cent/"+str(data)+"_Ywave"+str(i)+".txt",
-            "../"+str(data)+"/cent/"+str(data)+"_count"+str(i)+".txt",
-            "../"+str(data)+"/centROC/"+str(test[i])+str(data),"Degree",test[i])
+        reg("../data/"+str(data)+"/subGraphs_logistic/"+str(data)+"_Xwavesub"+str(i)+".txt",
+            "../data/"+str(data)+"/subGraphs_logistic/"+str(data)+"_Ywavesub"+str(i)+".txt",
+            "../data/"+str(data)+"/subGraphs_logistic/"+str(data)+"_count"+str(i)+".txt",
+            "../data/"+str(data)+"/rocGraphs/"+str(test[i])+str(data),"Graphlets",test[i])
+        reg("../data/"+str(data)+"/cent/"+str(data)+"_Xwave"+str(i)+".txt",
+            "../data/"+str(data)+"/cent/"+str(data)+"_Ywave"+str(i)+".txt",
+            "../data/"+str(data)+"/cent/"+str(data)+"_count"+str(i)+".txt",
+            "../data/"+str(data)+"/centROC/"+str(test[i])+str(data),"Degree",test[i])
 #graph_dist("Haverford-31",[5,10,15,20,25])

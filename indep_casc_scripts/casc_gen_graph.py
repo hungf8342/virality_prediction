@@ -7,10 +7,7 @@ import networkx as nx
 import scipy.stats as stats
 import pandas as pd
 
-def clean():
-    data = pd.read_csv('../data/orig_graphs/soc-Haverford.txt', sep=" ", header=None)
-    data.iloc[1:]=data.iloc[1:]-1
-
+#takes data name, original graph filename and creates an edge+weight txt file
 def gen(data,filename):
     gDat = open(filename, 'rb')
     firstLine = gDat.readline().split()
@@ -30,7 +27,6 @@ def gen(data,filename):
         complete.append([int(vals[0]), int(vals[1]), weights[t]])
         t+=1
     complete=np.vstack(complete)
-    print(complete)
     np.savetxt(filename_w,complete,fmt='%f')
 
 #gen("Haverford-X10","../orig_graphs/soc-Haverford.txt")

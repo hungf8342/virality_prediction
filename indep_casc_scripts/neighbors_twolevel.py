@@ -14,6 +14,7 @@ from sklearn.metrics import mean_squared_error, accuracy_score, confusion_matrix
 from sklearn import datasets, linear_model, cross_validation
 import _pickle as cPickle
 
+#inputs: x-values file, y-values file, count file
 #divide counts and counts into train/test data
 def train_test(features,cases,count):
     trainx,testx=features[:int(.7*len(features))], features[int(.7*len(features)):]
@@ -23,6 +24,7 @@ def train_test(features,cases,count):
     traincount, testcount=count[:int(.7*len(features)),], count[int(.7*len(features)):,]
     return trainx,trainy,traincount,testx,testy,testcount
 
+#inputs: x-values file, y-values file, count file, save file path, Degree vs. Graphlet label, and k test values
 #run logistic regression and save AUC values in a file
 def reg(x,y,counts,save,type,k):
     local_g=np.loadtxt(x)
@@ -43,7 +45,8 @@ def reg(x,y,counts,save,type,k):
                 myfile.write(str(roc_auc_score(y_test,preds[:,1]))+'\n')
     return 2
 
-
+#input: data name (str) and k test values (array of ints)
+#find and save degree and graphlet AUC files 5 times
 def update(data,test):
     for i in range(5):
         reg("../data/"+str(data)+"/subGraphs_logistic/"+str(data)+"_Xwavesub"+str(i)+".txt",

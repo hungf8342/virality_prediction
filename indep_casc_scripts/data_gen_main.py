@@ -43,8 +43,36 @@ def plot_roc(data,tests):
     ax=sb.boxplot(x=toplot['k'],y=toplot['grph'],hue=toplot["type"])
     ax.set_title("AUC scores of Graphlet/Degree-Based Models, "+str(data))
     ax.set_ylabel('AUC')
-    ax.set_xlabel('')
+    ax.set_xlabel('k')
     plt.savefig("../data/"+str(data)+"/rocs.png")
 
-#data_gen("alv-X10","soc-advogato.txt",10)
-plot_roc("alv-X10",[5,10,15,20,25])
+def algcomparison(data):
+    toplot=pd.DataFrame()
+    deg_fin=pd.DataFrame()
+    for k in [3,4,5]:
+        #get ROCs for graphlet and degree features
+        gplts=pd.read_csv("../data/"+str(data)+"/testing/"+str(k)+"count_g.txt",sep="\n",header=None)
+        eigs=pd.read_csv("../data/"+str(data)+"/testing/"+str(k)+"count_e.txt",sep="\n",header=None)
+        #grph column contains ROC values, k column contains which tested k the ROC belongs to
+        temp_deg=pd.DataFrame({"grph": list(eigs.iloc[:,0]), "k": [k]*len(list(eigs.iloc[:,0]))})
+        temp_rocs=pd.DataFrame({"grph": list(gplts.iloc[:,0]), "k": [k]*len(list(gplts.iloc[:,0]))})
+        deg_fin=pd.concat([deg_fin,temp_deg],axis=0)
+        toplot=pd.concat([toplot,temp_rocs],axis=0)
+        #print mean and stdev of the ROCs for each k-value
+        print(str(k)+"mean(deg): "+str(np.mean(eigs.iloc[:,0]))+", std: "+str(np.std(eigs.iloc[:,0])))
+        print(str(k)+"mean(graphlets): "+str(np.mean(gplts.iloc[:,0]))+", std: "+str(np.std(gplts.iloc[:,0])))
+    #mark rows as graphlet or degree
+    toplot["type"]=list("g"*toplot.shape[0])
+    deg_fin["type"]=list("e"*deg_fin.shape[0])
+    toplot=toplot.append(deg_fin)
+    print(toplot)
+    plt.clf()
+    ax=sb.boxplot(x=toplot['k'],y=toplot['grph'],hue=toplot["type"])
+    ax.set_title("Cascade Size from Eigenvector and Graphlet-Chosen Nodes, "+str(data))
+    ax.set_ylabel('size of cascade')
+    ax.set_xlabel('# starting nodes')
+    plt.savefig("../data/"+str(data)+"/csizes.png")
+
+#data_gen("hamster-X10","soc-hamsterster.txt",10)
+#plot_roc("alv-X10",[5,10,15,20,25])
+algcomparison("anybeat-X10")

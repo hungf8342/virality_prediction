@@ -1,0 +1,26 @@
+Loading graph
+Converting to CSR
+Relabeling graph
+Creating DAG
+Counting 3-vertex
+Counting 4-vertex
+Getting easy four vertex patterns
+Getting four cycles
+Getting four cliques
+Counting 5-vertex
+Getting all triangles
+Also getting reverse triangle info
+Counting trees
+Counting triangle based patterns
+Counting 4-cycle and 4-clique based patterns
+Counting five cycles
+Counting collision patterns
+Counting almost cliques
+../escape
+==============
+Basic size
+==============
+Vertices	 2
+Edges		 1
+['Ind_set', 'Only_edge', 'Wedge', 'Triangle', 'Ind.set', 'Only.edge', 'Matching', 'Only.wedge', 'Only.triangle', '3-star', '3-path', 'Tailed.triangle', '4-cycle', 'Diamond', '4-clique', 'Ind-set', 'Only-edge', 'Matching', 'Only-wedge', 'Only-triangle', 'Only-3-star', 'Only-3-path', 'Only-Tailed-tri', 'Only-4-cycle', 'Only-Diamond', 'Only-4-clique', 'Wedge+edge', 'Triangle+edge', '4-star', 'Prong', '4-path', 'Forktailed-tri', 'Lontailed-tri', 'Doubletailed-tri', 'Tailed-4-cycle', '5-cycle', 'Hourglass', 'Cobra', 'Stingray', 'Hatted-4-cycle', '3-wedge-col', '3-tri-collision', 'Tailed-4-clique', 'Triangle-strip', 'Diamond-wed-col', '4-wheel', 'Hatted-4-clique', 'Almost-5-clique', '5-clique']
+[0.0, 0.0, 0.0, 0.0, 0.0, -0.0, 0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, 0.0, 0.0, -0.0, -0.0, 0.0, -0.0, 0.0, -0.0, 0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
